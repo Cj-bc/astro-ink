@@ -8,18 +8,14 @@ import TweetEmbed from "../../components/mdoc/TweetEmbed.astro";
 import YTVideoEmbed from "../../components/mdoc/YTVideoEmbed.astro";
 import Tabs from "../../components/mdoc/Tabs/Tabs.astro";
 
-// get the views count
 // get the likes count
 
 const { slug } = Astro.params
 const entry = await getEntryBySlug('blog', slug!)
 
-const resp = await fetch(`${import.meta.env.SITE_URI}/api/blog/views/${slug}`)
-const stats = await resp.json()
-
 const { Content } = await entry.render()
 ---
-<PostLayout content={entry.data} stats={stats}>
+<PostLayout content={entry.data}>
     <Content components={{
         Callout,
         Link,

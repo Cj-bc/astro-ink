@@ -7,10 +7,7 @@ import BaseHead from '$/components/BaseHead.astro'
 import Prose from '$/components/Prose.astro'
 
 interface Props {
-    content: CollectionEntry<'blog'>['data'],
-    stats: {
-        views: number
-    }
+    content: CollectionEntry<'blog'>['data']
 }
 const { content, stats } = Astro.props
 
@@ -40,8 +37,6 @@ const AUTHOR_AVATAR = content.authorImage ? content.authorImage : SITE?.authorIm
                     }
                     {!AUTHOR_AVATAR ? ' | ' : ''}
                     <span class="post__date">{ new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }).format(new Date(content.date))}
-                        <!-- Post Stats? -->
-                        | <Icon class="w-5 h-5 inline-block" pack="mdi" name="eye" /> {stats.views} views
                         <!-- | <Icon class="w-5 h-5 inline-block" pack="mdi" name="clock" /> 2 mins -->
                     </span>
                 </div>
