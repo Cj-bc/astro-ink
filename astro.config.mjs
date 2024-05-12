@@ -7,6 +7,7 @@ import mdx from '@astrojs/mdx';
 import { defineConfig } from "astro/config";
 import vercel from "@astrojs/vercel/serverless";
 import markdoc from "@astrojs/markdoc";
+import org from "astro-org";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -33,8 +34,10 @@ export default defineConfig( /** @type {import('astro').AstroUserConfig} */{
       config: {
         applyBaseStyles: false
       }
-    }), 
-    sitemap()],
+    }),
+    sitemap(),
+    org()
+  ],
   vite: {
     plugins: [],
     resolve: {
