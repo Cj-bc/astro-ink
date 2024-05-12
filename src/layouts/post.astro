@@ -19,8 +19,6 @@ const { content, slug } = Astro.props
 const AUTHOR_NAME = content.author ? content.author : SITE?.author ? SITE?.author : "Author"
 const AUTHOR_TWITTER = content.authorTwitter ? content.authorTwitter : SITE?.authorTwitter ? SITE?.authorTwitter : ""
 const AUTHOR_AVATAR = content.authorImage ? content.authorImage : SITE?.authorImage ? SITE?.authorImage : ""
-
-const TAGS = content.tags.split(' ')
 ---
 <!doctype html>
 <html lang="en">
@@ -30,7 +28,7 @@ const TAGS = content.tags.split(' ')
     <MainLayout>
         <div class="post__header">
             <div class="post__tags">
-                { TAGS.length > 0 && TAGS.map(tag => <a class="post__tag" href={`/tags/${tag}`} title={tag}>{tag}</a>) }
+                { content.tags.length > 0 && content.tags.map(tag => <a class="post__tag" href={`/tags/${tag}`} title={tag}>{tag}</a>) }
             </div>
             <h1 class="post__title">{ content.title }</h1>
             <h5 class={`post__desc ${AUTHOR_AVATAR ? 'flex flex-row gap-2' : ''}`}>
