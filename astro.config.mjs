@@ -4,7 +4,6 @@ import svelte from '@astrojs/svelte';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig } from "astro/config";
-import vercel from "@astrojs/vercel/serverless";
 import markdoc from "@astrojs/markdoc";
 import org from "astro-org";
 const __filename = fileURLToPath(import.meta.url);
