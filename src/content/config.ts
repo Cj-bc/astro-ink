@@ -4,8 +4,8 @@ const blogCollection = defineCollection({
     schema: z.object({
         title: z.string().max(100, 'The title length must be less than or equal to 100 chars'),
         description: z.string().default("read more..."),
-        tags: z.string(),
-        author: z.string(),
+        tags: z.string().default(""),
+        author: z.string().default("Cj-bc"),
         date: z.string().transform((str) =>
 	    {
 		let cap = str.match(/\[(\d{4}-\d{2}-\d{2}) ...(?: (\d{2}:\d{2}))?\]/)
