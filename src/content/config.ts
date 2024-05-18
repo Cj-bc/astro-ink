@@ -12,7 +12,9 @@ const blogCollection = defineCollection({
 		return `${cap[1]} ${cap[2] ?? ""}`
 	    }),
         image: z.string().optional(),
-        category: z.string(),
+        kind: z.enum(["Memo", "Diary", "Knowledge", "Advertisment", "Translation", "HowTo"]),
+	progress: z.enum(["Empty", "WIP", "Published"]),
+	status: z.enum(["Normal", "Archive", "Accuracy", "Outdated"])
     })
 })
 
