@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 import { defineConfig } from "astro/config";
 import markdoc from "@astrojs/markdoc";
 import org from "astro-org";
+import rehypeRaw from "rehype-raw";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -33,7 +34,7 @@ export default defineConfig( /** @type {import('astro').AstroUserConfig} */{
       }
     }),
     sitemap(),
-    org()
+    org({rehypePlugins: [rehypeRaw]})
   ],
   vite: {
     plugins: [],
