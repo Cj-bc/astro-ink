@@ -5,7 +5,7 @@ const blogCollection = defineCollection({
         title: z.string().max(100, 'The title length must be less than or equal to 100 chars'),
         description: z.string().default("read more..."),
         tags: z.string()
-	    .transform((str) => str.split(":").filter((s) => s != ''))
+	    .transform((str) => str.split(":").filter((s) => s != '' && s != " "))
 	    .pipe(z.array(z.string())),
         author: z.string().default("Cj-bc"),
         date: z.string().transform((str) =>
