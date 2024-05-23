@@ -26,10 +26,10 @@ export const NAV_ITEMS: NavItems = {
 export const SITE = {
     // Your site's detail?
     name: 'Ink',
-    title: 'Astro - Ink',
-    description: 'Crisp, minimal, personal blog theme for Astro',
-    url: 'https://astro-ink.vercel.app',
-    githubUrl: 'https://github.com/one-aalam/astro-ink',
+    title: 'CLI! CLI! CLI!',
+    description: 'Contents related to tech, hobby, etc',
+    url: 'https://cj-bc.github.io/blog',
+    githubUrl: 'https://github.com/Cj-bc/blog',
     listDrafts: true,
     image: 'https://raw.githubusercontent.com/one-aalam/astro-ink/main/public/astro-banner.png',
     // YT video channel Id (used in media.astro)
@@ -38,11 +38,11 @@ export const SITE = {
     // Author: name
     author: '', // Example: Fred K. Schott
     // Author: Twitter handler
-    authorTwitter: '', // Example: FredKSchott
+    authorTwitter: 'cj_bc_sd', // Example: FredKSchott
     // Author: Image external source
     authorImage: '', // Example: https://pbs.twimg.com/profile_images/1272979356529221632/sxvncugt_400x400.jpg, https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png
     // Author: Bio
-    authorBio: 'Crisp, minimal, personal blog theme for Astro. Crisp, minimal, personal blog theme for Astro. Crisp, minimal, personal blog theme for Astro'
+    authorBio: ''
 }
 
 // Ink - Theme configuration
