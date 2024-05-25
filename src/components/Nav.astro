@@ -10,7 +10,7 @@ import { NAV_ITEMS } from '$/config'
                     `pb-1 border-b-2 hover:border-gray-400 hover:dark:border-gray-700 `,
                     Astro.url.pathname !== NAV_ITEMS[navItemKey].path ? 'border-gray-100 dark:border-gray-800': '',
                     Astro.url.pathname === NAV_ITEMS[navItemKey].path ? 'border-theme-primary' : ''
-                ]} href={import.meta.env.BASE_URL}/{NAV_ITEMS[navItemKey].path} title={NAV_ITEMS[navItemKey].title}>{toTitleCase(NAV_ITEMS[navItemKey].title)}</a>
+                ]} href=`${import.meta.env.BASE_URL}${NAV_ITEMS[navItemKey].path}` title={NAV_ITEMS[navItemKey].title}>{toTitleCase(NAV_ITEMS[navItemKey].title)}</a>
             </li>)
         }
     </ul>
