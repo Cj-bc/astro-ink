@@ -10,6 +10,7 @@ const title = 'Blog'
 const description = 'Trying astro for my blog'
 
 const posts = await getCollection('blog')
+      .then(ps => ps.sort((a, b) => new Date(b.data.date) - new Date(a.data.date)));
 ---
 <DefaultPageLayout content={{ title, description }} showPageHeader={false}>
     <PostPreviewList posts={posts} />
