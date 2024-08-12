@@ -9,6 +9,7 @@ import org from "astro-org";
 import rehypeRaw from "rehype-raw";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const __base = 'blog';
 
 // Full Astro Configuration API Documentation:
 // https://docs.astro.build/reference/configuration-reference
@@ -20,9 +21,9 @@ export default defineConfig( /** @type {import('astro').AstroUserConfig} */{
   // publicDir: './public',   // A folder of static files Astro will copy to the root. Useful for favicons, images, and other files that don’t need processing.
   output: 'static',
   site: 'https://cj-bc.github.io',
-  base: 'blog',
+  base: __base,
   redirects: {
-    '/posts/[slug].html': `${import.meta.env.BASE_URL}/posts/[slug]`,
+    '/posts/[slug].html': `${__base}/posts/[slug]`,
   },
   // Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs.
   server: {
