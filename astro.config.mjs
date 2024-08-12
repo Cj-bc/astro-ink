@@ -23,7 +23,7 @@ export default defineConfig( /** @type {import('astro').AstroUserConfig} */{
   site: 'https://cj-bc.github.io',
   base: __base,
   redirects: {
-    '/posts/[slug].html': `${__base}/posts/[slug]`,
+    '/posts/[...page].html': '/blog/posts/[...page]',
   },
   // Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs.
   server: {
