@@ -21,9 +21,9 @@ export default defineConfig( /** @type {import('astro').AstroUserConfig} */{
   // publicDir: './public',   // A folder of static files Astro will copy to the root. Useful for favicons, images, and other files that don’t need processing.
   output: 'static',
   site: 'https://cj-bc.github.io',
-  base: __base,
+  base: 'blog',
   redirects: {
-    '/posts/[...page].html': '/blog/posts/[...page]',
+    '/posts/[slug].html': `blog/posts/[slug]`,
   },
   // Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs.
   server: {
