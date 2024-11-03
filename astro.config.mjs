@@ -22,9 +22,11 @@ export default defineConfig( /** @type {import('astro').AstroUserConfig} */{
   output: 'static',
   site: 'https://cj-bc.github.io',
   base: 'blog',
-  redirects: {
-    '/posts/[slug].html': '/blog/posts/[slug]/',
-  },
+  // redirectsは baseURL を無視するので自力で付ける必要がある。
+  // https://github.com/withastro/astro/issues/7774
+  // redirects: {
+  //   '/posts/[slug].html': '/blog/posts/[slug]/',
+  // },
   // Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs.
   server: {
     // port: 3000,         // The port to run the dev server on.
