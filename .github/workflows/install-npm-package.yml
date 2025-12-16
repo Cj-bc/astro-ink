@@ -1,0 +1,371 @@
+name: Install NPM Package (Secure)
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'NPM package to install (e.g., "lodash" or "lodash@4.17.21")'
+        required: true
+        type: string
+
+# Minimal permissions - only what's needed
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+
+jobs:
+  install-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      # SECURITY: Verify caller has write access (owner, collaborator, or member)
+      - name: Check caller permissions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Checking permissions for user: ${{ github.actor }}"
+
+          # Get the permission level of the actor
+          PERMISSION=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/collaborators/${{ github.actor }}/permission \
+            --jq '.permission' 2>&1)
+
+          echo "Permission level: $PERMISSION"
+
+          # Only allow admin, write, or maintain permissions
+          if [[ "$PERMISSION" != "admin" && "$PERMISSION" != "write" && "$PERMISSION" != "maintain" ]]; then
+            echo "❌ ERROR: Insufficient permissions. Only repository owners and collaborators with write access can run this workflow."
+            echo "Your permission level: $PERMISSION"
+            echo "Required: admin, write, or maintain"
+            exit 1
+          fi
+
+          echo "✅ Permission check passed"
+
+      # SECURITY: Validate and sanitize package input
+      - name: Validate and sanitize package input
+        id: validate
+        run: |
+          PACKAGE_INPUT="${{ inputs.package }}"
+
+          echo "Validating package input: $PACKAGE_INPUT"
+
+          # Check for empty input
+          if [ -z "$PACKAGE_INPUT" ]; then
+            echo "❌ ERROR: Package name cannot be empty"
+            exit 1
+          fi
+
+          # Check length (npm package names have limits)
+          if [ ${#PACKAGE_INPUT} -gt 214 ]; then
+            echo "❌ ERROR: Package name too long (max 214 characters)"
+            exit 1
+          fi
+
+          # SECURITY: Check for dangerous characters that could indicate injection attempts
+          # Block: semicolons, pipes, backticks, $(), redirects, etc.
+          if echo "$PACKAGE_INPUT" | grep -E '[;&|`$<>(){}\\]' > /dev/null; then
+            echo "❌ ERROR: Package name contains potentially dangerous characters"
+            echo "Blocked characters: ; & | \` $ < > ( ) { } \\"
+            exit 1
+          fi
+
+          # Check for spaces (not allowed in package names)
+          if echo "$PACKAGE_INPUT" | grep -E '\s' > /dev/null; then
+            echo "❌ ERROR: Package name cannot contain spaces"
+            exit 1
+          fi
+
+          # Check for double dots (path traversal attempt)
+          if echo "$PACKAGE_INPUT" | grep -E '\.\.' > /dev/null; then
+            echo "❌ ERROR: Package name cannot contain '..' (potential path traversal)"
+            exit 1
+          fi
+
+          # SECURITY: Validate against official npm package naming rules
+          # NPM package format: [@scope/]name[@version]
+          # - Scope: @[a-z0-9-~][a-z0-9-._~]*
+          # - Name: [a-z0-9-~][a-z0-9-._~]*
+          # - Version: [a-z0-9-_.]+
+          # Must be lowercase, can contain hyphens, underscores, dots
+          # Can start with @ for scoped packages
+          if ! echo "$PACKAGE_INPUT" | grep -qE '^(@[a-z0-9-~][a-z0-9-._~]*/)?[a-z0-9-~][a-z0-9-._~]*(@[a-z0-9-_.]+)?$'; then
+            echo "❌ ERROR: Invalid package name format"
+            echo "Package names must:"
+            echo "  - Be lowercase"
+            echo "  - Contain only: a-z, 0-9, -, _, ."
+            echo "  - Optionally start with @scope/"
+            echo "  - Optionally end with @version"
+            echo "Examples: 'lodash', '@types/node', 'react@18.0.0'"
+            exit 1
+          fi
+
+          # Additional check: ensure it doesn't start with a dot (hidden files)
+          if [[ "$PACKAGE_INPUT" == .* ]] && [[ "$PACKAGE_INPUT" != @* ]]; then
+            echo "❌ ERROR: Package name cannot start with a dot"
+            exit 1
+          fi
+
+          echo "✅ Package input validation passed"
+          echo "package=$PACKAGE_INPUT" >> $GITHUB_OUTPUT
+
+          # Extract package name without version for branch naming
+          PACKAGE_NAME=$(echo "$PACKAGE_INPUT" | sed 's/@[0-9].*//' | sed 's/@/-/g' | sed 's/\//-/g')
+          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history for proper branch creation
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create feature branch
+        id: branch
+        run: |
+          SANITIZED_PACKAGE="${{ steps.validate.outputs.package_name }}"
+          TIMESTAMP=$(date +%s)
+          BRANCH_NAME="chore/add-npm-package-${SANITIZED_PACKAGE}-${TIMESTAMP}"
+
+          echo "Creating branch: $BRANCH_NAME"
+          git checkout -b "$BRANCH_NAME"
+
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      # SECURITY: Verify package exists without installing (no script execution)
+      - name: Verify package exists
+        run: |
+          echo "Verifying package exists in npm registry: ${{ steps.validate.outputs.package }}"
+
+          # Use --package-lock-only to verify without installing
+          # Use --ignore-scripts to prevent any script execution
+          npm install "${{ steps.validate.outputs.package }}" \
+            --package-lock-only \
+            --ignore-scripts \
+            --no-audit \
+            --no-fund
+
+          if [ $? -ne 0 ]; then
+            echo "❌ ERROR: Failed to resolve package"
+            echo "Possible reasons:"
+            echo "  - Package does not exist in npm registry"
+            echo "  - Version specified does not exist"
+            echo "  - Network issues"
+            exit 1
+          fi
+
+          echo "✅ Package verified in npm registry"
+
+          # Clean up the test changes
+          git checkout -- package.json package-lock.json 2>/dev/null || true
+
+      # SECURITY: Install with --ignore-scripts to prevent arbitrary code execution
+      - name: Install package securely
+        run: |
+          echo "Installing package: ${{ steps.validate.outputs.package }}"
+
+          # SECURITY: Use --ignore-scripts to prevent postinstall/preinstall scripts
+          # This prevents potential malicious code execution during installation
+          npm install "${{ steps.validate.outputs.package }}" \
+            --ignore-scripts \
+            --no-audit \
+            --no-fund \
+            --save
+
+          if [ $? -ne 0 ]; then
+            echo "❌ ERROR: Failed to install package"
+            exit 1
+          fi
+
+          echo "✅ Package installed successfully"
+
+      - name: Verify installation changes
+        run: |
+          echo "Verifying changes to package files..."
+
+          # Check if package.json or package-lock.json were modified
+          if ! git diff --name-only | grep -qE 'package(-lock)?\.json'; then
+            echo "❌ ERROR: No changes detected in package.json or package-lock.json"
+            echo "This should not happen after npm install"
+            exit 1
+          fi
+
+          echo "✅ Package files modified:"
+          git diff --name-only
+
+          echo ""
+          echo "📦 Changes to package.json:"
+          git diff package.json
+
+      - name: Commit changes
+        run: |
+          git add package.json package-lock.json
+
+          # Create detailed commit message
+          git commit -m "chore: add npm package ${{ steps.validate.outputs.package }}
+
+          - Installed via automated workflow
+          - Security: installed with --ignore-scripts flag
+          - Requested by: @${{ github.actor }}
+          - Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          echo "✅ Changes committed"
+
+      - name: Push branch
+        run: |
+          echo "Pushing branch: ${{ steps.branch.outputs.branch }}"
+
+          # Push with retry logic for network resilience
+          MAX_RETRIES=4
+          RETRY_DELAY=2
+
+          for i in $(seq 1 $MAX_RETRIES); do
+            if git push -u origin "${{ steps.branch.outputs.branch }}"; then
+              echo "✅ Branch pushed successfully"
+              exit 0
+            else
+              if [ $i -lt $MAX_RETRIES ]; then
+                echo "⚠️  Push failed, retrying in ${RETRY_DELAY}s... (attempt $i/$MAX_RETRIES)"
+                sleep $RETRY_DELAY
+                RETRY_DELAY=$((RETRY_DELAY * 2))
+              else
+                echo "❌ ERROR: Failed to push after $MAX_RETRIES attempts"
+                exit 1
+              fi
+            fi
+          done
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Creating pull request..."
+
+          # Determine base branch (main, master, or current default)
+          BASE_BRANCH="${{ github.event.repository.default_branch }}"
+          if [ -z "$BASE_BRANCH" ]; then
+            BASE_BRANCH="main"
+          fi
+
+          # Create PR with detailed security information
+          gh pr create \
+            --title "chore: add npm package \`${{ steps.validate.outputs.package }}\`" \
+            --body "$(cat <<'EOFMARKER'
+          ## 📦 Package Installation
+
+          This PR adds the npm package **\`${{ steps.validate.outputs.package }}\`** to the project dependencies.
+
+          ### Package Details
+          - **Package:** \`${{ steps.validate.outputs.package }}\`
+          - **Requested by:** @${{ github.actor }}
+          - **Installed to:** dependencies
+          - **Workflow run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          ### Changes
+          - ✅ Added \`${{ steps.validate.outputs.package }}\` to `package.json`
+          - ✅ Updated `package-lock.json`
+
+          ### 🔒 Security Notes
+
+          ⚠️ **IMPORTANT:** This package was installed with the \`--ignore-scripts\` flag for security reasons. This means that any postinstall/preinstall scripts were **NOT** executed during installation.
+
+          #### Before Merging - Review Checklist
+
+          Please thoroughly review this package before merging:
+
+          - [ ] **Verify package source**: Check that this is the intended package from a trusted source
+          - [ ] **Review package repository**: Visit the package's GitHub/GitLab repository
+          - [ ] **Check maintainers**: Verify the package has active, trustworthy maintainers
+          - [ ] **Scan for vulnerabilities**: Run \`npm audit\` to check for known security issues
+          - [ ] **Review dependencies**: Check what dependencies this package brings in
+          - [ ] **Test the application**: Ensure the app still builds and runs correctly
+          - [ ] **Check bundle size**: Verify the impact on application bundle size
+
+          #### Post-Merge Actions
+
+          If this package requires install scripts to function properly, you'll need to rebuild it:
+
+          \`\`\`bash
+          # Rebuild a specific package (runs its install scripts)
+          npm rebuild ${{ steps.validate.outputs.package }}
+
+          # Or reinstall all packages with scripts
+          npm install
+          \`\`\`
+
+          #### Security Information
+
+          - **npm package validation**: ✅ Passed (validated against npm naming rules)
+          - **Injection check**: ✅ Passed (no dangerous characters detected)
+          - **Permission check**: ✅ Passed (initiated by authorized user)
+          - **Install scripts**: ⚠️ Disabled (installed with \`--ignore-scripts\`)
+
+          #### Useful Commands
+
+          \`\`\`bash
+          # View package information
+          npm info ${{ steps.validate.outputs.package }}
+
+          # Check for vulnerabilities
+          npm audit
+
+          # View package contents
+          npm view ${{ steps.validate.outputs.package }} --json
+
+          # View package repository
+          npm repo ${{ steps.validate.outputs.package }}
+          \`\`\`
+
+          ---
+
+          🤖 *This PR was automatically created by the [Install NPM Package workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/install-npm-package.yml)*
+          EOFMARKER
+          )" \
+            --head "${{ steps.branch.outputs.branch }}" \
+            --base "$BASE_BRANCH"
+
+          if [ $? -eq 0 ]; then
+            echo "✅ Pull request created successfully"
+          else
+            echo "❌ ERROR: Failed to create pull request"
+            exit 1
+          fi
+
+      - name: Workflow Summary
+        if: success()
+        run: |
+          echo "### ✅ Workflow Completed Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** \`${{ steps.validate.outputs.package }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ steps.branch.outputs.branch }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Requested by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "A pull request has been created. Please review the security checklist before merging." >> $GITHUB_STEP_SUMMARY
+
+      - name: Workflow Failure Summary
+        if: failure()
+        run: |
+          echo "### ❌ Workflow Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** \`${{ steps.validate.outputs.package }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Requested by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Please check the workflow logs for details." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Common issues:" >> $GITHUB_STEP_SUMMARY
+          echo "- Package does not exist or version is invalid" >> $GITHUB_STEP_SUMMARY
+          echo "- Insufficient permissions (requires write access)" >> $GITHUB_STEP_SUMMARY
+          echo "- Invalid package name format" >> $GITHUB_STEP_SUMMARY
+          echo "- Network connectivity issues" >> $GITHUB_STEP_SUMMARY
