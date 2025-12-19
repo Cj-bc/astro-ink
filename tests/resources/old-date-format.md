@@ -1,6 +1,6 @@
 ---
 title: publish date with "date" tag
-tags:
+tags: example test
 author: Cj-bc
 date: "[1970-01-01 Thu]"
 kind: Memo
