@@ -17,12 +17,13 @@ const blogCollection = defineCollection({
         image: z.string().optional(),
         kind: z.enum(["Memo", "Diary", "Knowledge", "Advertisment", "Translation", "HowTo"]),
         progress: z.enum(["Empty", "WIP", "Published"]),
-        status: z.enum(["Normal", "Archive", "Accuracy", "Outdated"])
-    }).extend(z.union(
-        [{date: dateSchema},
-         {publishDate: dateSchema}])
-        .refine(obj => !(obj.date != undefined && obj.publishDate != undefined)))
-       // xor(date, publishDate). xor is not available in zod v3
+        status: z.enum(["Normal", "Archive", "Accuracy", "Outdated"]),
+        date: dateSchema.optional(),
+        publishDate: dateSchema.optional()
+    }).refine(obj => (obj.date !== undefined) !== (obj.publishDate !== undefined), {
+        message: "Must have either 'date' or 'publishDate', but not both"
+    })
+    // xor(date, publishDate). xor is not available in zod v3
 })
 
 export const collections = {
