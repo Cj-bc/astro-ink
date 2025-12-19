@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Copy test file for build test
+        run: cp -r tests/resources/*.md src/content/blog/
+
       - name: Run Astro type check
         run: npm run check
 
