@@ -18,7 +18,7 @@ const blogCollection = defineCollection({
         kind: z.enum(["Memo", "Diary", "Knowledge", "Advertisment", "Translation", "HowTo"]),
         progress: z.enum(["Empty", "WIP", "Published"]),
         status: z.enum(["Normal", "Archive", "Accuracy", "Outdated"])
-    }).safeExtend(z.union(
+    }).extend(z.union(
         [{date: dateSchema},
          {publishDate: dateSchema}])
         .refine(obj => !(obj.date != undefined && obj.publishDate != undefined)))
