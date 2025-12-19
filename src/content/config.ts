@@ -18,9 +18,11 @@ const blogCollection = defineCollection({
         kind: z.enum(["Memo", "Diary", "Knowledge", "Advertisment", "Translation", "HowTo"]),
         progress: z.enum(["Empty", "WIP", "Published"]),
         status: z.enum(["Normal", "Archive", "Accuracy", "Outdated"])
-    }).safeExtend(z.xor(
+    }).safeExtend(z.union(
         [{date: dateSchema},
-         {publishDate: dateSchema}]))
+         {publishDate: dateSchema}])
+        .refine(obj => !(obj.date != undefined && obj.publishDate != undefined)))
+       // xor(date, publishDate). xor is not available in zod v3
 })
 
 export const collections = {
