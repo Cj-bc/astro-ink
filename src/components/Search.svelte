@@ -12,7 +12,7 @@
 
     onMount(async() => {
         const lunr = (await import('lunr')).default
-        const resp = await fetch('/search-index.json')
+        const resp = await fetch('/blog/search-index.json')
         searchableDocs = await resp.json()
             // Initialize indexing
         searchIndex = lunr(function(){
