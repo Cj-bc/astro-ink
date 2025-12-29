@@ -20,22 +20,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: npm ci
+        run: bun i
 
       - name: Copy test file for build test
         run: cp -r tests/resources/*.md src/content/blog/
 
       - name: Run Astro type check
-        run: npm run check
+        run: bun run check
 
       - name: Build site
-        run: npm run build
+        run: bun run astro build
 
       - name: Verify build output
         run: |
