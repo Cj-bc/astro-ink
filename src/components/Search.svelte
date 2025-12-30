@@ -8,7 +8,20 @@
     let searchIndex
 
     let searchQuery = ''
-    let searchResults = []
+    const searchResults = $derived({
+	ret = []
+        if(searchQuery && searchQuery.length >= 3) {
+           const matches = searchIndex.search(searchQuery)
+           matches.map(match => {
+               searchableDocs.filter(doc => {
+                    if(match.ref === doc.slug) {
+                        ret.push(doc)
+                    }
+               })
+           })
+        }
+	return ret;
+    });
 
     onMount(async() => {
         const lunr = (await import('lunr')).default
@@ -35,19 +48,6 @@
         searchInput.focus()
     })
 
-    $: {
-        if(searchQuery && searchQuery.length >= 3) {
-           const matches = searchIndex.search(searchQuery)
-           searchResults = []
-           matches.map(match => {
-               searchableDocs.filter(doc => {
-                    if(match.ref === doc.slug) {
-                        searchResults.push(doc)
-                    }
-               })
-           })
-        }
-    }
 </script>
 <div class="search">
     <div class="search__ctrl">
