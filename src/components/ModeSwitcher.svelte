@@ -30,6 +30,6 @@
         theme.set(currTheme)
     })
 </script>
-<button on:click={toggleTheme}>
+<button onclick={toggleTheme}>
     <slot theme={currTheme}/>
 </button>

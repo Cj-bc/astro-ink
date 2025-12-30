@@ -18,6 +18,6 @@
 	}
 </style>
 
-<button class:selected="{$selectedTab === tab}" on:click="{() => selectTab(tab)}">
+<button class:selected="{$selectedTab === tab}" onclick={() => selectTab(tab)}>
 	<slot></slot>
 </button>
