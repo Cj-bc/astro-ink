@@ -1,13 +1,15 @@
 <script lang="ts">
     type Props = {
-        slug: string
-        title: string
-        description: string
-        category: string,
-        tags: Array<string>
+	post: {
+            slug: string
+            title: string
+            description: string
+            category: string,
+            tags: Array<string>
+	};
+	isLast: boolean;
     }
-    export let post: Props
-    export let isLast: boolean = false
+    let { post, isLast = false } : Props = $props();
 </script>
 <div class="post-preview hover:bg-theme-primary">
     <div class="flex-1">

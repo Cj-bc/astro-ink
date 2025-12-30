@@ -1,8 +1,11 @@
 <script lang="ts">
     import { onMount } from "svelte";
 
-    
-    export let slug: string = ''
+    type Props {
+        slug: string;
+    }
+
+    let { slug = '' } : Props = $props();
 
     let loading: boolean = false
     let views: number = 0

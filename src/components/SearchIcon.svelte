@@ -1,6 +1,11 @@
 <script lang="ts">
     import SvgIcon from './SvgIcon.svelte'
-    export let found:boolean = false
+
+    type Props {
+        found: boolean;
+    }
+
+    let { found = false }: Props = $props();
 </script>
 <SvgIcon>
     {#if found}

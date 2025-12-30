@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { Tabs, TabList, TabPanel, Tab, type TabItem } from './tabs';
-    export let tabs: TabItem[] = []
+
+    type Props {
+	tabs: TabItem[];
+    }
+    const { tabs = [] }: Props = $props();
 </script>
 
 <Tabs>
