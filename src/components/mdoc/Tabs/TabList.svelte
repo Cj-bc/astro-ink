@@ -1,5 +1,8 @@
+<script>
+    import type { Snippet } from 'svelte';
+</script>
 <div class="tab-list">
-	<slot></slot>
+    {@render children()}
 </div>
 
 <style>

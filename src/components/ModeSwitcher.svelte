@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte'
+    import type { Snippet } from 'svelte'
     import { theme } from '../store/theme'
 
     type ThemeType = 'dark' | 'light'
@@ -7,6 +8,7 @@
     const THEME_DARK: ThemeType =  'dark'
     const THEME_LIGHT: ThemeType =  'light'
     let currTheme: ThemeType = THEME_DARK
+    let { buttonContent }: { buttonContent: Snippet } = $props();
 
 
     function toggleTheme() {
@@ -31,5 +33,5 @@
     })
 </script>
 <button onclick={toggleTheme}>
-    <slot theme={currTheme}/>
+    {@render buttonContent(theme=currTheme)}
 </button>

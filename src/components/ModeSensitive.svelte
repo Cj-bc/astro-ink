@@ -2,7 +2,7 @@
     import { theme } from '../store/theme'
 </script>
 {#if $theme === 'dark'}
-    <slot name="dark"/>
+     {@render dark()}
 {:else}
-    <slot name="light"/>
+    {@render light()}
 {/if}

@@ -1,5 +1,13 @@
 <script context="module">
+    import { Snippet } from 'svelte';
+
+	interface Props {
+        children: Snippet;
+	}
+
 	export const TABS = {};
+
+	let { children }: Props = $props();
 </script>
 
 <script>
@@ -46,5 +54,5 @@
 </script>
 
 <div class="tabs">
-	<slot></slot>
+    {@render children()}
 </div>

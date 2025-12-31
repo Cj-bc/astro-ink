@@ -1,6 +1,12 @@
 <script>
 	import { getContext } from 'svelte';
+	import type { Snippet } from 'svelte';
 	import { TABS } from './Tabs.svelte';
+
+        interface Props {
+            children: Snippet;
+        }
+        let { children } : Snippet = $props();
 
 	const tab = {};
 	const { registerTab, selectTab, selectedTab } = getContext(TABS);
@@ -19,5 +25,5 @@
 </style>
 
 <button class:selected="{$selectedTab === tab}" onclick={() => selectTab(tab)}>
-	<slot></slot>
+    {@render children()}
 </button>
