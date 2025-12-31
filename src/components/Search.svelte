@@ -8,8 +8,8 @@
     let searchIndex
 
     let searchQuery = ''
-    const searchResults = $derived({
-	ret = []
+    const searchResults = $derived.by(() => {
+	let ret = []
         if(searchQuery && searchQuery.length >= 3) {
            const matches = searchIndex.search(searchQuery)
            matches.map(match => {
