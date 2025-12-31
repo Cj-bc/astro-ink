@@ -1,7 +1,7 @@
 <script lang="ts">
     import SvgIcon from './SvgIcon.svelte'
 
-    type Props {
+    type Props = {
         found: boolean;
     }
 

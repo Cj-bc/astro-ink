@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
 
-    type Props {
+    type Props = {
         slug: string;
     }
 

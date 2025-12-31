@@ -33,5 +33,5 @@
     })
 </script>
 <button onclick={toggleTheme}>
-    {@render buttonContent(theme=currTheme)}
+    {@render buttonContent(currTheme)}
 </button>
