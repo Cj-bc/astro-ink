@@ -7,6 +7,7 @@ import { defineConfig } from "astro/config";
 import markdoc from "@astrojs/markdoc";
 import org from "astro-org";
 import rehypeRaw from "rehype-raw";
+import icon from "astro-icon";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const __base = 'blog';
@@ -34,6 +35,7 @@ export default defineConfig( /** @type {import('astro').AstroUserConfig} */{
   integrations: [
     markdoc(), // disabled now due to an issue with Vercel builds
     svelte(), 
+    icon(),
     tailwind({
       config: {
         applyBaseStyles: false
