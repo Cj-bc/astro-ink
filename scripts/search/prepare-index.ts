@@ -5,6 +5,7 @@ import grayMatter from 'gray-matter'
 import { unified } from 'unified'
 import orgParse from 'uniorg-parse'
 import { toString } from 'orgast-util-to-string'
+import { read } from 'to-vfile'
 
 type IndexProps = {
     slug: string;
@@ -17,7 +18,7 @@ type IndexProps = {
 async function processOrg(filePath: string): Promise<IndexProps> {
     const parser = unified().use(orgParse);
     const content = await fs.readFile(filePath, 'utf8');
-    const parsed = parser.parse(content);
+    const parsed = parser.parse(await read(filePath));
     const keywords = parsed.children.filter(c => c.type === 'keyword');
     const bodies = parsed.children.filter(c => c.type != 'keyword');
 
