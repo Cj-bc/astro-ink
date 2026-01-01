@@ -2,6 +2,8 @@ import path from 'path'
 import { promises as fs } from 'fs'
 import { globby } from 'globby'
 import grayMatter from 'gray-matter'
+import { unified } from 'unified'
+import orgParse from 'uniorg-parse'
 
 type IndexProps = {
     slug: string;
@@ -22,19 +24,25 @@ type IndexProps = {
 
     const contentFilePaths = await globby([ contentFilePattern ])
 
+    let parser = unified().use(orgParse)
+
     if(contentFilePaths.length) {
         const files = contentFilePaths.map(async(filePath) => await fs.readFile(filePath, 'utf8'))
         const index: IndexProps[] = []
         let i = 0
         for await (let file of files){
+	    const parsed = parser.parse(file);
+	    const keywords = parsed.children.filter(c => c.type === 'keyword');
+	    const bodies = parsed.children.filter(c => c.type != 'keyword');
+
             const { data: { title, description, tags }, content } = grayMatter(file)
             index.push({
                 slug: getSlugFromPathname(contentFilePaths[i]),
                 category: 'blog',
-                title,
-                description,
-                tags,
-                body: content
+                title: keywords.find(k => k.key.toUpperCase() === 'TITLE')?.value,
+                description: keywords.find(k => k.key.toUpperCase() === 'DESCRIPTION')?.value ?? null,
+                tags: keywords.find(k => k.key.toUpperCase() === 'TAGS')?.value,
+                body: bodies,
             })
             i++
         }
