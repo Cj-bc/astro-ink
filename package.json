@@ -37,6 +37,7 @@
     "@astrojs/markdoc": "0.15.10",
     "astro-org": "^4.0.0",
     "ioredis": "^5.8.2",
+    "orgast-util-to-string": "^1.1.0",
     "rehype-raw": "^7.0.0"
   }
 }

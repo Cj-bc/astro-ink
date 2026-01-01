@@ -8,6 +8,7 @@
         "@astrojs/markdoc": "0.15.10",
         "astro-org": "^4.0.0",
         "ioredis": "^5.8.2",
+        "orgast-util-to-string": "^1.1.0",
         "rehype-raw": "^7.0.0",
       },
       "devDependencies": {
@@ -872,7 +873,7 @@
 
     "oniguruma-to-es": ["oniguruma-to-es@4.3.4", "", { "dependencies": { "oniguruma-parser": "^0.12.1", "regex": "^6.0.1", "regex-recursion": "^6.0.2" } }, "sha512-3VhUGN3w2eYxnTzHn+ikMI+fp/96KoRSVK9/kMTcFqj1NRDh2IhQCKvYxDnWePKRXY/AqH+Fuiyb7VHSzBjHfA=="],
 
-    "orgast-util-to-string": ["orgast-util-to-string@1.0.1", "", {}, "sha512-hLNTilq3EPohqNJjguspxlzQRADQ7hpsQHhu5c71NzEBvn3agwbMH3e5dJyYybm7rQytkC8+4LRjLM33QXH06A=="],
+    "orgast-util-to-string": ["orgast-util-to-string@1.1.0", "", { "dependencies": { "@types/unist": "^3.0.2" } }, "sha512-dvvFR4g6mPx/mY2Ak4S7LTFng0N97x8ERW8yRxaQcPv1cQFCSBNuzN0+19aYRpFdjujnlotSr3NipDa6Soefdg=="],
 
     "orgast-util-visit-ids": ["orgast-util-visit-ids@1.0.1", "", { "dependencies": { "unist-util-visit-parents": "6.0.1" } }, "sha512-deJIW48S+yL42kgbV3hxiMFpDIRd0JiwVmkcwdWFJphBKSCDYrXttf15pHOh7trCoGhcBAXtpHmZguoN9KEPhg=="],
 
@@ -1359,6 +1360,8 @@
     "tailwindcss/fast-glob": ["fast-glob@3.3.2", "", { "dependencies": { "@nodelib/fs.stat": "^2.0.2", "@nodelib/fs.walk": "^1.2.3", "glob-parent": "^5.1.2", "merge2": "^1.3.0", "micromatch": "^4.0.4" } }, "sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow=="],
 
     "tailwindcss/postcss-selector-parser": ["postcss-selector-parser@6.1.2", "", { "dependencies": { "cssesc": "^3.0.0", "util-deprecate": "^1.0.2" } }, "sha512-Q8qQfPiZ+THO/3ZrOrO0cJJKfpYCagtMUkXbnEfmgUjwXg6z/WBeOyS9APBBPCTSiDV+s4SwQGu8yFsiMRIudg=="],
+
+    "uniorg-slug/orgast-util-to-string": ["orgast-util-to-string@1.0.1", "", {}, "sha512-hLNTilq3EPohqNJjguspxlzQRADQ7hpsQHhu5c71NzEBvn3agwbMH3e5dJyYybm7rQytkC8+4LRjLM33QXH06A=="],
 
     "unist-util-visit/unist-util-visit-parents": ["unist-util-visit-parents@6.0.1", "", { "dependencies": { "@types/unist": "^3.0.0", "unist-util-is": "^6.0.0" } }, "sha512-L/PqWzfTP9lzzEa6CKs0k2nARxTdZduw3zyh8d2NVBnsyvHjSX4TWse388YrrQKbvI8w20fGjGlhgT96WwKykw=="],
 

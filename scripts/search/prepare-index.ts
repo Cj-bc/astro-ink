@@ -4,6 +4,7 @@ import { globby } from 'globby'
 import grayMatter from 'gray-matter'
 import { unified } from 'unified'
 import orgParse from 'uniorg-parse'
+import { toString } from 'orgast-util-to-string'
 
 type IndexProps = {
     slug: string;
@@ -25,7 +26,7 @@ async function processOrg(filePath: string): Promise<IndexProps> {
         title: keywords.find(k => k.key.toUpperCase() === 'TITLE')?.value,
         description: keywords.find(k => k.key.toUpperCase() === 'DESCRIPTION')?.value ?? null,
         tags: keywords.find(k => k.key.toUpperCase() === 'TAGS')?.value.split(':').filter(s => s != ''),
-        body: bodies,
+        body: toString(bodies),
     }
 }
 
