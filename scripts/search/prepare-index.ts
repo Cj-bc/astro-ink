@@ -5,6 +5,9 @@ import grayMatter from 'gray-matter'
 import { unified } from 'unified'
 import orgParse from 'uniorg-parse'
 import { toString } from 'orgast-util-to-string'
+import remarkParse from 'remark-parse'
+import remarkStringify from 'remark-stringify'
+import remarkFrontmatter from 'remark-frontmatter'
 import { read } from 'to-vfile'
 
 type IndexProps = {
@@ -31,19 +34,34 @@ async function processOrg(filePath: string): Promise<IndexProps> {
     }
 }
 
+async function processMd(filePath: string): Promise<IndexProps> {
+    const parser = unified().use(remarkParse).use(remarkFrontmatter).use(remarkStringify);
+    const parsed = await parser.process(await read(filePath));
+    const keywords = parsed.data.matter;
+
+    return {
+        slug: path.basename(filePath, path.extname(filePath)),
+        title: keywords?.title,
+        description: keywords?.description,
+        tags: keywords?.tags?.split(':')?.filter(s => s != ''),
+        body: parsed.value,
+    }
+}
+
 (async function () {
     // prepare the dirs
     const srcDir = path.join(process.cwd(), 'src')
     const publicDir = path.join(process.cwd(), 'public')
     const contentBlogDir = path.join(srcDir, 'content', 'blog')
-    const contentFilePattern = path.join(contentBlogDir, '*.md')
+    const contentFilePattern = path.join(contentBlogDir, '*.{org,md}')
     const indexFile = path.join(publicDir, 'search-index.json')
     const getSlugFromPathname = (pathname) => path.basename(pathname, path.extname(pathname))
 
     const contentFilePaths = await globby([ contentFilePattern ])
 
     if(contentFilePaths.length) {
-        const index: IndexProps[] = await Promise.all(contentFilePaths.map(async (filePath) => await processOrg(filePath)));
+        const index: IndexProps[] = await Promise.all(contentFilePaths.map(async (filePath) =>
+	    path.extname(filePath) === 'org' ? await processOrg(filePath) : await processMd(filePath)));
         await fs.writeFile(indexFile, JSON.stringify(index))
         console.log(`Indexed ${index.length} documents from ${contentBlogDir} to ${indexFile}`)
     }
