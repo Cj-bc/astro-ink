@@ -13,6 +13,22 @@ type IndexProps = {
     body: string;
 }
 
+async function processOrg(filePath: string): Promise<IndexProps> {
+    const parser = unified().use(orgParse);
+    const content = await fs.readFile(filePath, 'utf8');
+    const parsed = parser.parse(content);
+    const keywords = parsed.children.filter(c => c.type === 'keyword');
+    const bodies = parsed.children.filter(c => c.type != 'keyword');
+
+    return {
+        slug: path.basename(filePath, path.extname(filePath)),
+        title: keywords.find(k => k.key.toUpperCase() === 'TITLE')?.value,
+        description: keywords.find(k => k.key.toUpperCase() === 'DESCRIPTION')?.value ?? null,
+        tags: keywords.find(k => k.key.toUpperCase() === 'TAGS')?.value.split(':').filter(s => s != ''),
+        body: bodies,
+    }
+}
+
 (async function () {
     // prepare the dirs
     const srcDir = path.join(process.cwd(), 'src')
@@ -24,28 +40,8 @@ type IndexProps = {
 
     const contentFilePaths = await globby([ contentFilePattern ])
 
-    let parser = unified().use(orgParse)
-
     if(contentFilePaths.length) {
-        const files = contentFilePaths.map(async(filePath) => await fs.readFile(filePath, 'utf8'))
-        const index: IndexProps[] = []
-        let i = 0
-        for await (let file of files){
-	    const parsed = parser.parse(file);
-	    const keywords = parsed.children.filter(c => c.type === 'keyword');
-	    const bodies = parsed.children.filter(c => c.type != 'keyword');
-
-            const { data: { title, description, tags }, content } = grayMatter(file)
-            index.push({
-                slug: getSlugFromPathname(contentFilePaths[i]),
-                category: 'blog',
-                title: keywords.find(k => k.key.toUpperCase() === 'TITLE')?.value,
-                description: keywords.find(k => k.key.toUpperCase() === 'DESCRIPTION')?.value ?? null,
-                tags: keywords.find(k => k.key.toUpperCase() === 'TAGS')?.value,
-                body: bodies,
-            })
-            i++
-        }
+        const index: IndexProps[] = await Promise.all(contentFilePaths.map(async (filePath) => await processOrg(filePath)));
         await fs.writeFile(indexFile, JSON.stringify(index))
         console.log(`Indexed ${index.length} documents from ${contentBlogDir} to ${indexFile}`)
     }
