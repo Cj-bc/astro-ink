@@ -7,7 +7,7 @@
     let searchableDocs
     let searchIndex
 
-    let searchQuery = ''
+    let searchQuery = $state('')
     const searchResults = $derived.by(() => {
 	let ret = []
         if(searchQuery && searchQuery.length >= 3) {
