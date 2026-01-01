@@ -10,18 +10,20 @@
 	isLast: boolean;
     }
     let { post, isLast = false } : Props = $props();
+
+    const baseUrl = import.meta.env.BASE_URL
 </script>
 <div class="post-preview hover:bg-theme-primary">
     <div class="flex-1">
         <h4 class="post-preview__title">
-            <a href={`/blog/posts/${post.slug}`} title={post.title}>{post.title} &rarr;</a>
+	    <a href={`${baseUrl}/posts/${post.slug}`} title={post.title}>{post.title} &rarr;</a>
         </h4>
         <p class="post-preview__desc">
             {post.description}
         </p>
         <ul class="tag-list">
             {#each post.tags as tag}
-                <a class="tag" href={`/blog/tags/${tag}`} title={tag}>{tag}</a>
+                <a class="tag" href={`${baseUrl}/tags/${tag}`} title={tag}>{tag}</a>
             {/each}
         </ul>
     </div>
