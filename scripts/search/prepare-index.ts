@@ -3,6 +3,14 @@ import { promises as fs } from 'fs'
 import { globby } from 'globby'
 import grayMatter from 'gray-matter'
 
+type IndexProps = {
+    slug: string;
+    title: string;
+    description: string;
+    tags: string[];
+    body: string;
+}
+
 (async function () {
     // prepare the dirs
     const srcDir = path.join(process.cwd(), 'src')
@@ -16,7 +24,7 @@ import grayMatter from 'gray-matter'
 
     if(contentFilePaths.length) {
         const files = contentFilePaths.map(async(filePath) => await fs.readFile(filePath, 'utf8'))
-        const index = []
+        const index: IndexProps[] = []
         let i = 0
         for await (let file of files){
             const { data: { title, description, tags }, content } = grayMatter(file)
