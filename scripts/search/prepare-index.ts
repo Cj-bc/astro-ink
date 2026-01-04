@@ -61,7 +61,7 @@ async function processMd(filePath: string): Promise<IndexProps> {
 
     if(contentFilePaths.length) {
         const index: IndexProps[] = await Promise.all(contentFilePaths.map(async (filePath) =>
-	    path.extname(filePath) === 'org' ? await processOrg(filePath) : await processMd(filePath)));
+	    path.extname(filePath) === '.org' ? await processOrg(filePath) : await processMd(filePath)));
         await fs.writeFile(indexFile, JSON.stringify(index))
         console.log(`Indexed ${index.length} documents from ${contentBlogDir} to ${indexFile}`)
     }
