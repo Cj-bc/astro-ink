@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Tabs, TabList, TabPanel, Tab, type TabItem } from './tabs';
 
-    type Props {
+    type Props = {
 	tabs: TabItem[];
     }
     const { tabs = [] }: Props = $props();
