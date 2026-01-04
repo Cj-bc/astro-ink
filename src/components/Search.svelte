@@ -19,14 +19,13 @@
     const searchResults = $derived.by(() => {
 	let ret: IndexProps[] = []
         if(searchQuery && searchQuery.length >= 3) {
-           const matches = searchIndex.search(searchQuery)
-           matches.map(match => {
-               searchableDocs.filter(doc => {
-                    if(match.ref === doc.slug) {
-                        ret.push(doc)
-                    }
-               })
-           })
+	  for (const match of searchIndex.search(searchQuery)) {
+	    for (const doc of searchableDocs) {
+              if(match.ref === doc.slug) {
+                ret.push(doc)
+              }
+	    }
+	  }
         }
 	return ret;
     });
