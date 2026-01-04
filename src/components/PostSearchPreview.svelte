@@ -4,7 +4,6 @@
             slug: string
             title: string
             description: string
-            category: string,
             tags: Array<string>
 	};
 	isLast: boolean;
