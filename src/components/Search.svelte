@@ -4,12 +4,20 @@
     import PostSearchPreview from './PostSearchPreview.svelte'
 
     let searchInput
-    let searchableDocs
+    let searchableDocs : IndexProps[] = [];
     let searchIndex
+
+    type IndexProps = {
+        slug: string;
+        title: string;
+        description: string;
+        tags: string[];
+        body: string;
+    }
 
     let searchQuery = $state('')
     const searchResults = $derived.by(() => {
-	let ret = []
+	let ret: IndexProps[] = []
         if(searchQuery && searchQuery.length >= 3) {
            const matches = searchIndex.search(searchQuery)
            matches.map(match => {
