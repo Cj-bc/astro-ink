@@ -5,7 +5,7 @@ const dateSchema = z.string().transform((str, ctx) => {
     let cap = str.match(/\[(\d{4}-\d{2}-\d{2}) ...(?: (\d{2}:\d{2}))?\]/)
     if (cap == null)
     {
-        ctx.issues.push({
+        ctx.addIssue({
             code: "invalid_format",
             message: "Invalid data format",
             input: str,
