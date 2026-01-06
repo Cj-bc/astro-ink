@@ -1,8 +1,18 @@
 import { z, defineCollection } from "astro:content";
 
 
-const dateSchema = z.string().transform((str) => {
+const dateSchema = z.string().transform((str, ctx) => {
     let cap = str.match(/\[(\d{4}-\d{2}-\d{2}) ...(?: (\d{2}:\d{2}))?\]/)
+    if (cap == null)
+    {
+        ctx.issues.push({
+            code: "invalid_format",
+            message: "Invalid data format",
+            input: str,
+            pattern: /\[(\d{4}-\d{2}-\d{2}) ...(?: (\d{2}:\d{2}))?\]/
+        });
+        return z.NEVER;
+    }
     return `${cap[1]} ${cap[2] ?? ""}`
 })
 
